@@ -2,8 +2,23 @@ import heroImg from "@/assets/vineyard.jpg";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useRotatingPhrases, type RotatingPhrase } from "@/hooks/useRotatingPhrases";
+
+// Referência estável (fora do componente) para o hook de rotação.
+const HERO_PHRASES: RotatingPhrase[] = [
+  { lead: "Da vindima", highlight: "à última taça." },
+  { lead: "Do terroir", highlight: "ao seu cálice." },
+  { lead: "Da videira", highlight: "à sua mesa." },
+  { lead: "Da colheita", highlight: "à celebração." },
+  { lead: "Do barril", highlight: "ao paladar." },
+];
 
 export const Hero = () => {
+  const { phrase, visible } = useRotatingPhrases(HERO_PHRASES, {
+    intervalMs: 3500,
+    fadeMs: 500,
+  });
+
   return (
     <section className="relative isolate min-h-[100svh] overflow-hidden">
       <img
@@ -24,8 +39,12 @@ export const Hero = () => {
           </div>
 
           <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tight text-primary-foreground text-balance md:text-7xl lg:text-8xl">
-            Da vindima
-            <span className="block text-gold">à última taça.</span>
+            <span
+              className={`block transition-opacity duration-500 ${visible ? "opacity-100" : "opacity-0"}`}
+            >
+              {phrase.lead}
+              <span className="block text-gold">{phrase.highlight}</span>
+            </span>
           </h1>
 
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/75 md:text-xl">
