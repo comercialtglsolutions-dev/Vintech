@@ -7,10 +7,10 @@ import { useRotatingPhrases, type RotatingPhrase } from "@/hooks/useRotatingPhra
 // Referência estável (fora do componente) para o hook de rotação.
 const HERO_PHRASES: RotatingPhrase[] = [
   { lead: "Da vindima", highlight: "à última taça." },
-  { lead: "Do terroir", highlight: "ao seu cálice." },
-  { lead: "Da videira", highlight: "à sua mesa." },
-  { lead: "Da colheita", highlight: "à celebração." },
-  { lead: "Do barril", highlight: "ao paladar." },
+  { lead: "Do campo", highlight: "à nuvem." },
+  { lead: "Da uva", highlight: "aos dados." },
+  { lead: "Da safra", highlight: "ao faturamento." },
+  { lead: "Da adega", highlight: "ao analytics." },
 ];
 
 export const Hero = () => {
