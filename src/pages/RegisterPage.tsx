@@ -123,7 +123,7 @@ export const RegisterPage = () => {
           {/* Benefícios */}
           <ul className="mt-10 space-y-3 border-t border-primary-foreground/10 pt-8">
             {[
-              "✓  Teste gratuito por 14 dias, sem cartão de crédito",
+              "✓  Teste gratuito por 15 dias, sem cartão de crédito",
               "✓  Migração de dados assistida pela equipe",
               "✓  Suporte premium 24/7 via chat e e-mail",
             ].map((item) => (

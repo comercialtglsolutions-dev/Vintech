@@ -32,14 +32,17 @@ const papelLabel = (p: string) => {
 };
 
 export const EquipePage = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<any>(null);
 
   const fetchStaff = async () => {
-    if (!profile?.winery_id) return;
+    if (!profile?.winery_id) {
+      if (!authLoading) setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -59,7 +62,7 @@ export const EquipePage = () => {
 
   useEffect(() => {
     fetchStaff();
-  }, [profile]);
+  }, [profile, authLoading]);
 
   const handleDelete = async (id: string) => {
     if (id === profile?.id) return toast.error("Você não pode excluir seu próprio perfil.");

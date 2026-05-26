@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { createWinery } from './controllers/auth.controller';
+import { createWinery, ensureWinery } from './controllers/auth.controller';
 import Stripe from 'stripe';
 import { supabase } from './lib/supabase';
 
@@ -126,6 +126,7 @@ app.get('/health', (req: any, res: any) => {
 
 // Auth Routes
 app.post('/auth/create-winery', createWinery);
+app.post('/auth/ensure-winery', ensureWinery);
 
 // Stripe Checkout Route
 app.post('/api/checkout/create-session', async (req: any, res: any) => {

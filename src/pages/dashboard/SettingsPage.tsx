@@ -29,7 +29,7 @@ import { addMonths } from "date-fns";
 import { usePlanLimits } from "@/hooks/usePlanLimits";
 
 export default function SettingsPage() {
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, loading: authLoading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -64,8 +64,11 @@ export default function SettingsPage() {
   useEffect(() => {
     if (profile?.winery_id) {
       fetchSettings();
+    } else if (!authLoading) {
+      // Auth resolveu sem vinícola: não deixa a tela presa em loading.
+      setLoading(false);
     }
-  }, [profile]);
+  }, [profile, authLoading]);
 
   const sessionId = searchParams.get("session_id");
 

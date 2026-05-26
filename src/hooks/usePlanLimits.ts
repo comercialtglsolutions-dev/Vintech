@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-import { startOfMonth, endOfMonth, addMonths, differenceInDays, addDays } from "date-fns";
+import { startOfMonth, endOfMonth, addMonths, differenceInCalendarDays, addDays } from "date-fns";
 
 export interface PlanLimits {
   name: string;
@@ -65,10 +65,11 @@ export function usePlanLimits() {
       const priceId = winery?.stripe_price_id;
       const isPaidPlan = !!priceId && priceId !== "viticultura";
       
-      // Lógica de Trial
+      // Lógica de Trial (15 dias de calendário a partir do início)
       const trialStart = new Date(winery?.trial_started_at || winery?.created_at || new Date());
       const trialEnd = addDays(trialStart, 15);
-      const daysLeft = differenceInDays(trialEnd, new Date());
+      // differenceInCalendarDays ignora horas: no dia 1 retorna 15, não 14.
+      const daysLeft = differenceInCalendarDays(trialEnd, new Date());
       const isTrialActive = !isPaidPlan && daysLeft > 0;
 
       // Determinar o nome do plano (Prioridade para o que está no banco)

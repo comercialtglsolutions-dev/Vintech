@@ -45,7 +45,7 @@ interface EventData {
 }
 
 export const EnoturismoPage = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isBookingSheetOpen, setIsBookingSheetOpen] = useState(false);
   const [isEventSheetOpen, setIsEventSheetOpen] = useState(false);
@@ -63,8 +63,11 @@ export const EnoturismoPage = () => {
   const [activeTab, setActiveTab] = useState("agenda");
 
   const fetchData = async () => {
-    if (!profile?.winery_id) return;
-    
+    if (!profile?.winery_id) {
+      if (!authLoading) setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       
@@ -127,7 +130,7 @@ export const EnoturismoPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [profile?.winery_id]);
+  }, [profile?.winery_id, authLoading]);
 
   const handleOpenDetails = (e: EventData) => {
     setSelectedEventDetail(e);

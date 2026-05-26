@@ -14,7 +14,7 @@ import {
 const COLORS = ["hsl(350, 55%, 22%)", "hsl(43, 53%, 54%)", "hsl(350, 55%, 45%)", "hsl(43, 60%, 78%)"];
 
 export const AnalyticsPage = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [trendData, setTrendData] = useState<any[]>([]);
   const [categoryData, setCategoryData] = useState<any[]>([]);
@@ -30,7 +30,10 @@ export const AnalyticsPage = () => {
   });
 
   const fetchData = async () => {
-    if (!profile?.winery_id) return;
+    if (!profile?.winery_id) {
+      if (!authLoading) setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       // 1. Buscar Histórico de Vendas
@@ -117,7 +120,7 @@ export const AnalyticsPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [profile]);
+  }, [profile, authLoading]);
 
   if (loading) {
     return (

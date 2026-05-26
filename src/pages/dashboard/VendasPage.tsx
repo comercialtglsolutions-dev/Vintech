@@ -35,14 +35,17 @@ const statusLabel = (s: string) => {
 };
 
 export const VendasPage = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [isSaleSheetOpen, setIsSaleSheetOpen] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSale, setSelectedSale] = useState<any>(null);
 
   const fetchData = async () => {
-    if (!profile?.winery_id) return;
+    if (!profile?.winery_id) {
+      if (!authLoading) setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -65,7 +68,7 @@ export const VendasPage = () => {
 
   useEffect(() => {
     fetchData();
-  }, [profile]);
+  }, [profile, authLoading]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Tem certeza que deseja excluir esta venda? Isso não afetará o estoque (por enquanto).")) return;

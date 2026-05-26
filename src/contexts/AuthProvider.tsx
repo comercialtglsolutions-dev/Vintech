@@ -43,8 +43,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       return data;
     } catch (err) {
-      console.error('fetchProfile error:', err);
+      // Não engolir silenciosamente: um profile que falha em carregar deixa
+      // winery_id nulo e trava toda a UI em loading. Logamos com detalhe.
+      console.error('[Auth] Falha ao carregar profile:', (err as any)?.message || err);
       return null;
+    }
+  };
+
+  // Recupera contas cujo profile ficou sem winery_id (trigger de signup falho).
+  // Sem isso o trial não aparece e as páginas ficam em loading infinito.
+  const ensureWineryLinked = async (
+    userId: string,
+    current: Profile | null,
+  ): Promise<Profile | null> => {
+    if (!current || current.winery_id) return current;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) return current;
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/ensure-winery`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) {
+        console.error('[Auth] ensure-winery falhou:', res.status);
+        return current;
+      }
+      // Recarrega o profile já com winery_id + join da vinícola.
+      const linked = await fetchProfile(userId);
+      return linked || current;
+    } catch (err) {
+      console.error('[Auth] ensureWineryLinked error:', err);
+      return current;
     }
   };
 
@@ -63,7 +97,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        const fresh = await fetchProfile(session.user.id);
+        let fresh = await fetchProfile(session.user.id);
+        if (fresh && !fresh.winery_id) fresh = await ensureWineryLinked(session.user.id, fresh);
         if (mounted && fresh) { setProfile(fresh); writeCachedProfile(fresh); }
       } else {
         // Sem sessão real: limpa apenas se foi logout explícito
@@ -83,7 +118,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          const fresh = await fetchProfile(session.user.id);
+          let fresh = await fetchProfile(session.user.id);
+          if (fresh && !fresh.winery_id) fresh = await ensureWineryLinked(session.user.id, fresh);
           if (mounted && fresh) { setProfile(fresh); writeCachedProfile(fresh); }
         }
         if (mounted) setLoading(false);

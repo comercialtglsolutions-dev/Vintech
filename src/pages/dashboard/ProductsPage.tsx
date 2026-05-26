@@ -57,7 +57,7 @@ const getStatusLabel = (stock: number, status: string) => {
 };
 
 export const ProductsPage = () => {
-  const { profile } = useAuth();
+  const { profile, loading: authLoading } = useAuth();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
@@ -67,8 +67,13 @@ export const ProductsPage = () => {
   const [activeTab, setActiveTab] = useState("active");
 
   const fetchProducts = async () => {
-    if (!profile?.winery_id) return;
-    
+    if (!profile?.winery_id) {
+      // Auth já resolveu e ainda não há vinícola: encerra o loading para não
+      // travar a tela em spinner infinito.
+      if (!authLoading) setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       let query = supabase
@@ -95,7 +100,7 @@ export const ProductsPage = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [profile?.winery_id, activeTab]);
+  }, [profile?.winery_id, activeTab, authLoading]);
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
